@@ -2,22 +2,22 @@ import { v4 as uuid } from "uuid"
 
 import { gerVariantWithProbability, getRandomInt } from "./randomFunctions.js";
 
-class ModeEnum {
-  static Easy = "easy";
-  static Medium = "medium";
-  static Hard = "hard";
+const ModeEnum = {
+  easy : "easy",
+  medium : "medium",
+  hard : "hard",
 }
 
 const bordersByMode = {
-  [ModeEnum.Easy]: [1, 100],
-  [ModeEnum.Medium]: [1000, 10000],
-  [ModeEnum.Hard]: [100000, 1000000],
+  [ModeEnum.easy]: [1, 100],
+  [ModeEnum.medium]: [1000, 10000],
+  [ModeEnum.hard]: [100000, 1000000],
 }
 
 const previousModeByCurrent = {
-  [ModeEnum.Easy]: ModeEnum.Easy,
-  [ModeEnum.Medium]: ModeEnum.Easy,
-  [ModeEnum.Hard]: ModeEnum.Medium,
+  [ModeEnum.easy]: ModeEnum.easy,
+  [ModeEnum.medium]: ModeEnum.easy,
+  [ModeEnum.hard]: ModeEnum.medium,
 }
 
 export function generateQuestions(number, mode) {
