@@ -1,20 +1,33 @@
 import express from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
+import mongoose from "mongoose";
 
 import { generateQuestions } from "./utils/generateQuestions.js";
 
+const port = 4000;
+
 const app = express();
 app.use(cors());
-const jsonParser = bodyParser.json();
+app.use(bodyParser.json());
 
-const port = 4000;
-let results = [
-  { date: 2144565, result: 2, time: 12 },
-  { date: 5676878, result: 10, time: 30 },
-  { date: 7634584, result: 6, time: 60 },
-  { date: 9843593, result: 7, time: 45 },
-];
+// Подключение к MongoDB
+mongoose.connect("mongodb://127.0.0.1:27017/results", { useNewUrlParser: true, useUnifiedTopology: true });
+const db = mongoose.connection;
+
+// Обработка подключения к MongoDB
+db.on("error", console.error.bind(console, "Error connection MongoDB:"));
+db.once("open", () => {
+  console.log("Successful connection to MongoDB");
+});
+
+// Создание схемы и модели для данных
+const resultSchema = new mongoose.Schema({
+  date: Number,
+  result: Number,
+  time: Number,
+});
+const Result = mongoose.model("Result", resultSchema);
 
 app.get("/questions", (request, response) => {
   const numberOfQuestions = parseInt(request.query.number, 10);
@@ -24,56 +37,40 @@ app.get("/questions", (request, response) => {
   response.json(questions);
 });
 
-app.get("/results", (request, response) => {
+app.get("/results", async (req, res) => {
   try {
-    response.json(results);
-  } catch (e) {
-    response.status(400).json({ message: err.message });
-  }
-});
-
-app.post("/results", jsonParser, async (request, response) => {
-  try {
-    results.push({
-      date: request.body.date,
-      result: request.body.result,
-      time: request.body.time,
-    });
-
-    response.status(201).json(results);
+    const results = await Result.find();
+    res.json(results);
   } catch (err) {
-    response.status(400).json({ message: err.message });
+    res.status(500).json({ message: err.message });
   }
 });
 
-// app.put("/results/:id", async (request, response) => {
-//   try {
-//     const result = results.find((res) => res.date === request.params.id);
-//     if (result) {
-//       result.date = request.body.date;
-//       result.result = request.body.result;
-//       result.time = request.body.time;
-//       response.json({ date: result.date, result: result.result, time: result.time });
-//     } else {
-//       response.status(404).json({ message: "Результат не найден" });
-//     }
-//   } catch (err) {
-//     response.status(400).json({ message: err.message });
-//   }
-// });
-
-app.delete("/results/:id", async (request, response) => {
+app.post("/results", async (req, res) => {
+  const result = new Result({
+    date: req.body.date,
+    result: req.body.result,
+    time: req.body.time,
+  });
   try {
-    const targetId = parseInt(request.params.id, 10);
-    const result = results.find((res) => res.date === targetId);
+    const newResult = await result.save();
+    res.status(201).json(newResult);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
 
+app.delete("/results/:id", async (req, res) => {
+  try {
+    const result = await Result.findOne({ date: req.params.id });
     if (result) {
-      results = results.filter((res) => res.date !== targetId);
+      await result.deleteOne({ date: req.params.id });
+      res.json({ message: "Result successfully deleted" });
     } else {
-      response.status(404).json({ message: "Результат не найден" });
+      res.status(404).json({ message: "result is not found" });
     }
   } catch (err) {
-    response.status(500).json({ message: err.message });
+    res.status(500).json({ message: err.message });
   }
 });
 
