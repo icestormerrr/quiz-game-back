@@ -2,7 +2,7 @@
   "name": "quiz-game-back",
   "version": "1.0.0",
   "description": "",
-  "main": "main.js",
+  "main": "app.js",
   "dependencies": {
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
@@ -14,7 +14,7 @@
   "type": "module",
   "devDependencies": {},
   "scripts": {
-    "start": "node main.js"
+    "start": "node app.js"
   },
   "keywords": [],
   "author": "",
