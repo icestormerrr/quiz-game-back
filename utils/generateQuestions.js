@@ -1,24 +1,24 @@
-import { v4 as uuid } from "uuid"
+import { v4 as uuid } from "uuid";
 
 import { gerVariantWithProbability, getRandomInt } from "./randomFunctions.js";
 
 const ModeEnum = {
-  easy : "easy",
-  medium : "medium",
-  hard : "hard",
-}
+  easy: "easy",
+  medium: "medium",
+  hard: "hard",
+};
 
 const bordersByMode = {
   [ModeEnum.easy]: [1, 100],
   [ModeEnum.medium]: [1000, 10000],
   [ModeEnum.hard]: [100000, 1000000],
-}
+};
 
 const previousModeByCurrent = {
   [ModeEnum.easy]: ModeEnum.easy,
   [ModeEnum.medium]: ModeEnum.easy,
   [ModeEnum.hard]: ModeEnum.medium,
-}
+};
 
 export function generateQuestions(number, mode) {
   const questions = [];
